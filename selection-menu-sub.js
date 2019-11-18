@@ -129,6 +129,7 @@ document.addEventListener('keyup', (event) => {
 
 window.addEventListener('scroll', hideSelectionMenu);
 window.addEventListener('resize', hideSelectionMenu);
+window.addEventListener('wheel', hideSelectionMenu);
 
 window.addEventListener('message', (event) => {
   if (event.source === window.top) return;
