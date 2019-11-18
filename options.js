@@ -42,7 +42,8 @@ function changeSearchEngine() {
   if (searchEngines.hasOwnProperty(this.value)) {
     document.querySelector("#search-engine-url").disabled = true;
     document.querySelector("#search-engine-url").value = searchEngines[this.value];
-  } else {
+  }
+  else {
     document.querySelector("#search-engine-url").disabled = false;
     document.querySelector("#search-engine-url").value = '';
   }
