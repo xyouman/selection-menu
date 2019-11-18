@@ -28,11 +28,12 @@ function createSelectionMenu(options) {
   document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;
   
+  let rngArr = [];
   function showSelectionMenu() {
     if (!selectionMenu.hidden) return;
     if (sel.isCollapsed) return;
     let selectedFromStart = false;
-    const rngArr = [];
+    rngArr = [];
     for (let i = 0; i < sel.rangeCount; i++) {
       const rng = sel.getRangeAt(i).cloneRange();
       if (i === (sel.rangeCount - 1) && rng.startContainer === sel.anchorNode
@@ -122,14 +123,17 @@ function createSelectionMenu(options) {
   
   document.addEventListener('mouseup', (event) => {
     if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
-      // browser.runtime.sendMessage(sel.toString().trim());
-      // because Selection.toString() sometimes give an empty string
-      // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
       let selectionStr = '';
-      for (let i = 0; i < sel.rangeCount; i++) {
-        selectionStr += sel.getRangeAt(i).toString();
+      if (sel.rangeCount === 1) {
+        selectionStr = sel.toString();
+      } else {
+        // because Selection.toString() sometimes give an empty string
+        // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
+        for (let i = 0; i < rngArr.length; i++) {
+          selectionStr += rngArr[i].toString() + ' ';
+        }
       }
-      browser.runtime.sendMessage(selectionStr.trim());
+      chrome.runtime.sendMessage(selectionStr.trim());
       hideSelectionMenu();
     } else
     if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
