@@ -4,7 +4,17 @@ const getOptions = browser.storage.sync.get({
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
 });
-getOptions.then((options) => createSelectionMenu(options));
+getOptions.then((options) => {
+  // inject a css file manually
+  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1544305
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = browser.runtime.getURL("selection-menu.css");
+  document.head.appendChild(link);
+  
+  createSelectionMenu(options);
+});
 
 function createSelectionMenu(options) {
   const sel = window.getSelection();
