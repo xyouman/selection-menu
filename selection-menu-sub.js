@@ -1,14 +1,9 @@
 'use strict';
 
-function showSelectionMenu() {
-  const sel = window.getSelection();
-  if (sel.isCollapsed) return;
-  let selectedFromStart = false;
+function getRngArrWithTextNodeBorders(selection) {
   const rngArr = [];
-  for (let i = 0; i < sel.rangeCount; i++) {
-    const rng = sel.getRangeAt(i).cloneRange();
-    if (i === (sel.rangeCount - 1) && rng.startContainer === sel.anchorNode
-        && rng.startOffset === sel.anchorOffset) selectedFromStart = true;
+  for (let i = 0; i < selection.rangeCount; i++) {
+    const rng = selection.getRangeAt(i).cloneRange();
     if (rng.commonAncestorContainer.nodeType === 3) {
       if (rng.toString().trim() !== '') rngArr.push(rng);
       continue;
@@ -37,8 +32,8 @@ function showSelectionMenu() {
       }
       return rng.startContainer;
     })();
-    wlkr.currentNode = wlkrStartNode;
     const textNodeArr = [];
+    wlkr.currentNode = wlkrStartNode;
     while (true) {
       if (wlkr.currentNode.nodeType === 3 && wlkr.currentNode.data.trim() !== '') textNodeArr.push(wlkr.currentNode);
       if (wlkr.currentNode === wlkrEndNode || wlkr.nextNode() === null) break;
@@ -54,15 +49,36 @@ function showSelectionMenu() {
     }
     rngArr.push(rng);
   }
-  if (rngArr.length === 0) return;
+  return rngArr;
+}
+
+function isSelectedFromStart(selection) {
+  const rng = selection.getRangeAt(selection.rangeCount - 1);
+  if (rng.startContainer === selection.anchorNode
+      && rng.startOffset === selection.anchorOffset) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+function showSelectionMenu() {
+  const selection = window.getSelection();
+  if (selection.isCollapsed) return;
   
+  const selectedRngArr = getRngArrWithTextNodeBorders(selection);
+  if (selectedRngArr.length === 0) return;
+  
+  const selectedFromStart = isSelectedFromStart(selection);
   const rng = document.createRange();
-  const selectedRng = (selectedFromStart) ? rngArr[rngArr.length - 1] : rngArr[0];
-  rng.setStart(selectedRng.startContainer, selectedRng.startOffset);
-  rng.setEnd(selectedRng.startContainer, selectedRng.startOffset);
+  const lastSelectedRng = (selectedFromStart) ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
+  
+  rng.setStart(lastSelectedRng.startContainer, lastSelectedRng.startOffset);
+  rng.setEnd(lastSelectedRng.startContainer, lastSelectedRng.startOffset);
   let ac = rng.getBoundingClientRect(); // anchor coordinates
-  rng.setStart(selectedRng.endContainer, selectedRng.endOffset);
-  rng.setEnd(selectedRng.endContainer, selectedRng.endOffset);
+  rng.setStart(lastSelectedRng.endContainer, lastSelectedRng.endOffset);
+  rng.setEnd(lastSelectedRng.endContainer, lastSelectedRng.endOffset);
   let fc = rng.getBoundingClientRect(); // focus coordinates
   
   if (!selectedFromStart) {
@@ -71,14 +87,15 @@ function showSelectionMenu() {
     fc = obj;
   }
   
-  let selectionStr = sel.toString();
+  let selectionStr = selection.toString();
   if (selectionStr === '') {
     // Selection.toString() sometimes gives an empty string
     // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
-    for (let i = 0; i < sel.rangeCount; i++) {
-      selectionStr += sel.getRangeAt(i).toString() + ' ';
+    for (let i = 0; i < selection.rangeCount; i++) {
+      selectionStr += selection.getRangeAt(i).toString() + ' ';
     }
   }
+  
   window.parent.postMessage({
     action: 'show',
     selection: selectionStr,

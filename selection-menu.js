@@ -57,7 +57,7 @@ function createSelectionMenu(options) {
   
   window.addEventListener('message', (event) => {
     if (event.source !== window.top) return;
-    switch(event.data.action) {
+    switch (event.data.action) {
       case 'show':
         if (!selectionMenu.hidden) return;
         selectionMenu.hidden = false;
@@ -68,19 +68,19 @@ function createSelectionMenu(options) {
         const offsetFromSelection = 7; // px
         
         if (ac.top >= fc.top) { // on one line or several lines selected from the end
-          if (fc.top < selectionMenu.offsetHeight + offsetFromSelection) {
+          if (fc.top < offsetFromSelection + selectionMenu.offsetHeight) {
             selectionMenu.style.top = 0 + 'px';
           }
           else {
-            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+            selectionMenu.style.top = fc.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
         }
         else { // several lines selected from the start
           if (fc.bottom > document.documentElement.clientHeight) {
-            selectionMenu.style.top = document.documentElement.clientHeight - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+            selectionMenu.style.top = document.documentElement.clientHeight - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
-          else if (fc.bottom + selectionMenu.offsetHeight + offsetFromSelection > document.documentElement.clientHeight) {
-            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+          else if (fc.bottom + offsetFromSelection + selectionMenu.offsetHeight > document.documentElement.clientHeight) {
+            selectionMenu.style.top = fc.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
           else {
             selectionMenu.style.top = fc.bottom + offsetFromSelection + 'px';
@@ -96,6 +96,7 @@ function createSelectionMenu(options) {
         else {
           selectionMenu.style.left = fc.left - selectionMenu.offsetWidth/2 + 'px';
         }
+        
         break;
       case 'hide':
         if (selectionMenu.hidden) return;
