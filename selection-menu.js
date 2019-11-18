@@ -40,8 +40,8 @@ function createSelectionMenu(options) {
         selection: selectionStr
       });
       selectionMenu.hidden = true;
-    } else
-    if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
+    }
+    else if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
       chrome.runtime.sendMessage({
         action: 'copy',
         selection: selectionStr
@@ -60,34 +60,40 @@ function createSelectionMenu(options) {
     switch(event.data.action) {
       case 'show':
         if (!selectionMenu.hidden) return;
-        selectionStr = event.data.selection;
         selectionMenu.hidden = false;
+        
+        selectionStr = event.data.selection;
         const ac = event.data.ac;
         const fc = event.data.fc;
+        const offsetFromSelection = 7; // px
+        
         if (ac.top >= fc.top) { // on one line or several lines selected from the end
-          if (fc.top < selectionMenu.offsetHeight + 7) {
+          if (fc.top < selectionMenu.offsetHeight + offsetFromSelection) {
             selectionMenu.style.top = 0 + 'px';
-          } else {
-            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - 7 + 'px';
           }
-        } else
-        if (ac.top < fc.top) { // several lines selected from the start
+          else {
+            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+          }
+        }
+        else { // several lines selected from the start
           if (fc.bottom > document.documentElement.clientHeight) {
-            selectionMenu.style.top = document.documentElement.clientHeight - selectionMenu.offsetHeight - 7 + 'px';
-          } else
-          if (fc.bottom + selectionMenu.offsetHeight + 7 > document.documentElement.clientHeight) {
-            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - 7 + 'px';
-          } else {
-            selectionMenu.style.top = fc.bottom + 7 + 'px';
+            selectionMenu.style.top = document.documentElement.clientHeight - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+          }
+          else if (fc.bottom + selectionMenu.offsetHeight + offsetFromSelection > document.documentElement.clientHeight) {
+            selectionMenu.style.top = fc.top - selectionMenu.offsetHeight - offsetFromSelection + 'px';
+          }
+          else {
+            selectionMenu.style.top = fc.bottom + offsetFromSelection + 'px';
           }
         }
         
         if (fc.right + selectionMenu.offsetWidth/2 > document.documentElement.clientWidth) {
           selectionMenu.style.left = document.documentElement.clientWidth - selectionMenu.offsetWidth + 'px';
-        } else 
-        if (fc.left < selectionMenu.offsetWidth/2) {
+        }
+        else if (fc.left < selectionMenu.offsetWidth/2) {
           selectionMenu.style.left = 0 + 'px';
-        } else {
+        }
+        else {
           selectionMenu.style.left = fc.left - selectionMenu.offsetWidth/2 + 'px';
         }
         break;
