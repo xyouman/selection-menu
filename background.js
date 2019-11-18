@@ -5,7 +5,8 @@ chrome.runtime.onMessage.addListener((selectionStr) => {
     searchEngineURL: 'https://www.google.com/search?q='
   }, (options) => {
     chrome.tabs.create({
-        url: options.searchEngineURL + encodeURIComponent(selectionStr)
+      url: options.searchEngineURL +
+        encodeURIComponent(selectionStr.replace(/\s+/g, ' ').trim())
     });
   });
 });
