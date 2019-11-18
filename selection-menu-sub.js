@@ -116,7 +116,8 @@ function debounce(func, ms) {
 
 document.addEventListener('mousedown', hideSelectionMenu);
 
-document.addEventListener('mouseup', () => {
+document.addEventListener('mouseup', (event) => {
+  if (event.which !== 1) return;
   // showSelectionMenu();
   // because clicking on the same selection resets it only after mouseup event
   setTimeout(showSelectionMenu, 0);
