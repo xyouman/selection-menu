@@ -20,8 +20,6 @@ function createSelectionMenu(options) {
   let selectionStr = '';
   const selectionMenu = document.createElement('div');
   selectionMenu.id = 'moz-ext-sel-menu';
-  selectionMenu.style.position = 'fixed';
-  selectionMenu.style.zIndex = '9999';
   selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
   selectionMenu.getElementsByTagName('span')[0].style.fontFamily = options.styleFontFamily;
   selectionMenu.getElementsByTagName('span')[0].textContent = options.findButtonText;
