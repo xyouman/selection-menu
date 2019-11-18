@@ -11,6 +11,7 @@
 #moz-ext-sel-menu li {
   display: inline-block;
   line-height: 18px;
+  margin: 0;
 }
 #moz-ext-sel-menu li:after {
   content: "";
