@@ -1,11 +1,10 @@
 'use strict';
 
-browser.runtime.onMessage.addListener((selectionStr) => {
-  const getOptions = browser.storage.sync.get({
+chrome.runtime.onMessage.addListener((selectionStr) => {
+  chrome.storage.local.get({
     searchEngineURL: 'https://www.google.com/search?q='
-  });
-  getOptions.then((options) => {
-    browser.tabs.create({
+  }, (options) => {
+    chrome.tabs.create({
         url: options.searchEngineURL + encodeURIComponent(selectionStr)
     });
   });

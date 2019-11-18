@@ -1,7 +1,7 @@
 'use strict';
 
 function saveOptions(event) {
-  browser.storage.sync.set({
+  chrome.storage.local.set({
     searchEngineName: document.querySelector("select").value,
     searchEngineURL: document.querySelector("#search-engine-url").value,
     findButtonText: document.querySelector("#find-button-text").value,
@@ -11,13 +11,12 @@ function saveOptions(event) {
 }
 
 function restoreOptions() {
-  const getOptions = browser.storage.sync.get({
+  chrome.storage.local.get({
     searchEngineName: 'google',
     searchEngineURL: 'https://www.google.com/search?q=',
     findButtonText: 'Find in Google',
     copyButtonText: 'Copy'
-  });
-  getOptions.then((options) => {
+  }, (options) => {
     document.querySelector("select").value = options.searchEngineName;
     if (options.searchEngineName !== 'custom') {
       document.querySelector("#search-engine-url").disabled = true;

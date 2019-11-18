@@ -1,14 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Selection Menu",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Pop-up menu after selection",
-  "applications": {
-    "gecko": {
-      "id": "{c3f89c61-f1ef-4f14-a7d6-49aff242663f}",
-      "strict_min_version": "55.0"
-    }
-  },
   "background": {
     "scripts": ["background.js"]
   },
@@ -25,7 +19,9 @@
   ],
   "options_ui": {
     "page": "options.html",
-    "browser_style": true
+    "chrome_style": true
   },
-  "permissions": ["storage"]
+  "permissions": [
+    "storage"
+  ]
 }
