@@ -16,7 +16,6 @@ chrome.storage.local.get({
 });
 
 function createSelectionMenu(options) {
-  const sel = window.getSelection();
   const selectionMenu = document.createElement('div');
   selectionMenu.id = 'moz-ext-sel-menu';
   selectionMenu.style.position = 'fixed';
@@ -29,6 +28,7 @@ function createSelectionMenu(options) {
   
   function showSelectionMenu() {
     if (!selectionMenu.hidden) return;
+    const sel = window.getSelection();
     if (sel.isCollapsed) return;
     let selectedFromStart = false;
     const rngArr = [];
@@ -132,8 +132,14 @@ function createSelectionMenu(options) {
     selectionMenu.hidden = true;
   }
   
-  document.addEventListener('mouseup', (event) => {
+  selectionMenu.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  
+  selectionMenu.addEventListener('mouseup', (event) => {
     if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
+      const sel = window.getSelection();
       let selectionStr = sel.toString();
       if (selectionStr === '') {
         // Selection.toString() sometimes gives an empty string
@@ -148,24 +154,20 @@ function createSelectionMenu(options) {
     if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
       document.execCommand('copy');
       hideSelectionMenu();
-    } else {
-      // showSelectionMenu();
-      // because clicking on the same selection resets it only after mouseup event
-      setTimeout(showSelectionMenu, 0);
     }
+    event.stopPropagation();
   });
   
-  document.addEventListener('mousedown', (event) => {
-    if (selectionMenu.contains(event.target)) {
-      event.preventDefault();
-    } else {
-      hideSelectionMenu();
-    }
+  selectionMenu.addEventListener('click', (event) => {
+    event.stopPropagation();
   });
   
-  document.addEventListener('keyup', (event) => {
-    if (sel.isCollapsed) return;
-    if (event.keyCode === 16) showSelectionMenu(); // shift
+  document.addEventListener('mousedown', hideSelectionMenu);
+  
+  document.addEventListener('mouseup', () => {
+    // showSelectionMenu();
+    // because clicking on the same selection resets it only after mouseup event
+    setTimeout(showSelectionMenu, 0);
   });
   
   document.addEventListener('keydown', (event) => {
@@ -178,6 +180,10 @@ function createSelectionMenu(options) {
         hideSelectionMenu();
         break;
     }
+  });
+  
+  document.addEventListener('keyup', (event) => {
+    if (event.keyCode === 16) showSelectionMenu(); // shift
   });
   
   window.addEventListener('scroll', hideSelectionMenu);
