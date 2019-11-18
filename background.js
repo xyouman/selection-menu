@@ -1,7 +1,7 @@
 'use strict';
 
 chrome.runtime.onMessage.addListener((msg) => {
-  switch(msg.action) {
+  switch (msg.action) {
     case 'find':
       chrome.storage.local.get({
         searchEngineURL: 'https://www.google.com/search?q='
