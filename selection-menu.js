@@ -7,11 +7,12 @@ getOptions.then((options) => createSelectionMenu(options));
 function createSelectionMenu(options) {
   const sel = window.getSelection();
   const selectionMenu = document.createElement('div');
+  selectionMenu.id = 'moz-ext-sel-menu';
   selectionMenu.style.position = 'fixed';
   selectionMenu.style.zIndex = '9999';
-  selectionMenu.innerHTML = '<ul class="moz-ext-sel-menu"><li class="moz-ext-sel-menu__item"><a role="button"></a></li><li class="moz-ext-sel-menu__item"><a role="button"></a></li></ul>';
-  selectionMenu.getElementsByTagName('a')[0].textContent = options.findButtonText;
-  selectionMenu.getElementsByTagName('a')[1].textContent = options.copyButtonText;
+  selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
+  selectionMenu.getElementsByTagName('span')[0].textContent = options.findButtonText;
+  selectionMenu.getElementsByTagName('span')[1].textContent = options.copyButtonText;
   document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;
   
@@ -108,7 +109,7 @@ function createSelectionMenu(options) {
   }
   
   document.addEventListener('mouseup', (event) => {
-    if (event.target === selectionMenu.getElementsByTagName('a')[0]) {
+    if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
       // browser.runtime.sendMessage(sel.toString().trim());
       // because Selection.toString() sometimes give an empty string
       // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
@@ -119,7 +120,7 @@ function createSelectionMenu(options) {
       browser.runtime.sendMessage(selectionStr.trim());
       hideSelectionMenu();
     } else
-    if (event.target === selectionMenu.getElementsByTagName('a')[1]) {
+    if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
       document.execCommand('copy');
       hideSelectionMenu();
     } else {
