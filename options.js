@@ -13,7 +13,7 @@ function saveOptions(event) {
 function restoreOptions() {
   const getOptions = browser.storage.sync.get({
     searchEngineName: 'google',
-    searchEngineURL: 'https://www.google.ru/search?q=',
+    searchEngineURL: 'https://www.google.com/search?q=',
     findButtonText: 'Find in Google',
     copyButtonText: 'Copy'
   });
@@ -30,7 +30,7 @@ function restoreOptions() {
 
 function changeSearchEngine() {
   const searchEngines = {
-    google: 'https://www.google.ru/search?q=',
+    google: 'https://www.google.com/search?q=',
     bing: 'https://www.bing.com/search?q=',
     yahoo: 'https://search.yahoo.com/search?p=',
     baidu: 'https://www.baidu.com/s?wd=',
