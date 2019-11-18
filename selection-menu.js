@@ -27,11 +27,12 @@ function createSelectionMenu(options) {
   document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;
   
+  let rngArr = [];
   function showSelectionMenu() {
     if (!selectionMenu.hidden) return;
     if (sel.isCollapsed) return;
     let selectedFromStart = false;
-    const rngArr = [];
+    rngArr = [];
     for (let i = 0; i < sel.rangeCount; i++) {
       const rng = sel.getRangeAt(i).cloneRange();
       if (i === (sel.rangeCount - 1) && rng.startContainer === sel.anchorNode
@@ -47,9 +48,19 @@ function createSelectionMenu(options) {
       const wlkrStartNode = (rng.startContainer.childNodes[rng.startOffset])
                             ? rng.startContainer.childNodes[rng.startOffset]
                             : rng.startContainer;
-      const wlkrEndNode = (rng.endContainer.childNodes[rng.endOffset])
-                          ? rng.endContainer.childNodes[rng.endOffset]
-                          : rng.endContainer;
+      const wlkrEndNode = (() => {
+        if (rng.endOffset === 0 || rng.endOffset.nodeType === 3) return rng.endContainer;
+        const subWlkr = document.createTreeWalker(
+          rng.endContainer,
+          NodeFilter.SHOW_ALL
+        );
+        const subWlkrEndNode = rng.endContainer.childNodes[rng.endOffset];
+        while (subWlkr.nextNode()) {
+          if (subWlkr.currentNode === subWlkrEndNode) break;
+        }
+        if (subWlkrEndNode) return subWlkr.previousNode();
+        return subWlkr.currentNode;
+      })();
       const textNodeArr = [];
       wlkr.currentNode = wlkrStartNode;
       while (true) {
@@ -67,9 +78,9 @@ function createSelectionMenu(options) {
       }
       rngArr.push(rng);
     }
-  
+    
     if (rngArr.length === 0) return;
-  
+    
     const rng = document.createRange();
     const selectedRng = (selectedFromStart) ? rngArr[rngArr.length - 1] : rngArr[0];
     rng.setStart(selectedRng.startContainer, selectedRng.startOffset);
@@ -121,12 +132,13 @@ function createSelectionMenu(options) {
   
   document.addEventListener('mouseup', (event) => {
     if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
-      // chrome.runtime.sendMessage(sel.toString().trim());
-      // because Selection.toString() sometimes give an empty string
+      let selectionStr = sel.toString();
+      // Selection.toString() sometimes gives an empty string
       // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
-      let selectionStr = '';
-      for (let i = 0; i < sel.rangeCount; i++) {
-        selectionStr += sel.getRangeAt(i).toString();
+      if (selectionStr === '') {
+        for (let i = 0; i < Arr.length; i++) {
+          selectionStr += rngArr[i].toString() + ' ';
+        }
       }
       chrome.runtime.sendMessage(selectionStr.trim());
       hideSelectionMenu();
