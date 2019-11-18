@@ -21,6 +21,10 @@
   display: inline-block;
   line-height: 18px;
   margin: 0;
+  padding: 0;
+}
+#moz-ext-sel-menu li:before {
+  content: "";
 }
 #moz-ext-sel-menu li:after {
   content: "";
