@@ -103,6 +103,17 @@ function hideSelectionMenu() {
   }, '*');
 }
 
+function debounce(func, ms) {
+  let timer = null;
+  return function() {
+    if (timer === null) func.apply(this);
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+    }, ms);
+  }
+}
+
 document.addEventListener('mousedown', hideSelectionMenu);
 
 document.addEventListener('mouseup', () => {
@@ -127,9 +138,9 @@ document.addEventListener('keyup', (event) => {
   if (event.keyCode === 16) showSelectionMenu(); // shift
 });
 
-window.addEventListener('scroll', hideSelectionMenu);
-window.addEventListener('resize', hideSelectionMenu);
-window.addEventListener('wheel', hideSelectionMenu);
+window.addEventListener('scroll', debounce(hideSelectionMenu, 200));
+window.addEventListener('resize', debounce(hideSelectionMenu, 200));
+window.addEventListener('wheel', debounce(hideSelectionMenu, 200));
 
 window.addEventListener('message', (event) => {
   if (event.source === window.top) return;
