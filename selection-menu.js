@@ -36,7 +36,7 @@ function createSelectionMenu(options) {
       const rng = sel.getRangeAt(i).cloneRange();
       if (i === (sel.rangeCount - 1) && rng.startContainer === sel.anchorNode
           && rng.startOffset === sel.anchorOffset) selectedFromStart = true;
-      if (rng.startContainer.nodeType === 3 && rng.endContainer.nodeType === 3) {
+      if (rng.commonAncestorContainer.nodeType === 3) {
         if (rng.toString().trim() !== '') rngArr.push(rng);
         continue;
       }
@@ -44,25 +44,20 @@ function createSelectionMenu(options) {
         rng.commonAncestorContainer,
         NodeFilter.SHOW_ALL
       );
+      const wlkrEndNode = (rng.endContainer.childNodes[rng.endOffset])
+                          ? rng.endContainer.childNodes[rng.endOffset]
+                          : rng.endContainer;
       const wlkrStartNode = (rng.startContainer.childNodes[rng.startOffset])
                             ? rng.startContainer.childNodes[rng.startOffset]
                             : rng.startContainer;
-      const wlkrEndNode = (() => {
-        if (rng.endOffset === 0 || rng.endOffset.nodeType === 3) return rng.endContainer;
-        const subWlkr = document.createTreeWalker(
-          rng.endContainer,
-          NodeFilter.SHOW_ALL
-        );
-        const subWlkrEndNode = rng.endContainer.childNodes[rng.endOffset];
-        while (subWlkr.nextNode()) {
-          if (subWlkr.currentNode === subWlkrEndNode) break;
-        }
-        if (subWlkrEndNode) return subWlkr.previousNode();
-        return subWlkr.currentNode;
-      })();
-      const textNodeArr = [];
       wlkr.currentNode = wlkrStartNode;
+      if (wlkr.currentNode === rng.startContainer && rng.startContainer.nodeType === 3
+          && wlkr.currentNode.data.length === rng.startOffset) {
+            wlkr.nextNode();
+      }
+      const textNodeArr = [];
       while (true) {
+        if (wlkr.currentNode === wlkrEndNode && rng.endOffset === 0) break;
         if (wlkr.currentNode.nodeType === 3 && wlkr.currentNode.data.trim() !== '') textNodeArr.push(wlkr.currentNode);
         if (wlkr.currentNode === wlkrEndNode || wlkr.nextNode() === null) break;
       }
@@ -77,7 +72,6 @@ function createSelectionMenu(options) {
       }
       rngArr.push(rng);
     }
-    
     if (rngArr.length === 0) return;
     
     const rng = document.createRange();
