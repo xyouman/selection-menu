@@ -1,6 +1,7 @@
 'use strict';
 
 chrome.storage.local.get({
+  styleFontFamily: '',
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
 }, (options) => {
@@ -22,7 +23,9 @@ function createSelectionMenu(options) {
   selectionMenu.style.position = 'fixed';
   selectionMenu.style.zIndex = '9999';
   selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
+  selectionMenu.getElementsByTagName('span')[0].style.fontFamily = options.styleFontFamily;
   selectionMenu.getElementsByTagName('span')[0].textContent = options.findButtonText;
+  selectionMenu.getElementsByTagName('span')[1].style.fontFamily = options.styleFontFamily;
   selectionMenu.getElementsByTagName('span')[1].textContent = options.copyButtonText;
   document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;

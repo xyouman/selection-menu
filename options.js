@@ -4,6 +4,7 @@ function saveOptions(event) {
   chrome.storage.local.set({
     searchEngineName: document.querySelector("select").value,
     searchEngineURL: document.querySelector("#search-engine-url").value,
+    styleFontFamily: document.querySelector("#style-font-family").value,
     findButtonText: document.querySelector("#find-button-text").value,
     copyButtonText: document.querySelector("#copy-button-text").value
   });
@@ -14,6 +15,7 @@ function restoreOptions() {
   chrome.storage.local.get({
     searchEngineName: 'google',
     searchEngineURL: 'https://www.google.com/search?q=',
+    styleFontFamily: '',
     findButtonText: 'Find in Google',
     copyButtonText: 'Copy'
   }, (options) => {
@@ -22,6 +24,7 @@ function restoreOptions() {
       document.querySelector("#search-engine-url").disabled = true;
     }
     document.querySelector("#search-engine-url").value = options.searchEngineURL;
+    document.querySelector("#style-font-family").value = options.styleFontFamily;
     document.querySelector("#find-button-text").value = options.findButtonText;
     document.querySelector("#copy-button-text").value = options.copyButtonText;
   });
