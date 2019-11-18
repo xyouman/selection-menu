@@ -44,20 +44,29 @@ function createSelectionMenu(options) {
         rng.commonAncestorContainer,
         NodeFilter.SHOW_ALL
       );
-      const wlkrEndNode = (rng.endContainer.childNodes[rng.endOffset])
-                          ? rng.endContainer.childNodes[rng.endOffset]
-                          : rng.endContainer;
-      const wlkrStartNode = (rng.startContainer.childNodes[rng.startOffset])
-                            ? rng.startContainer.childNodes[rng.startOffset]
-                            : rng.startContainer;
+      const wlkrEndNode = (() => {
+        if (rng.endOffset === 0) {
+          wlkr.currentNode = rng.endContainer;
+          return wlkr.previousNode();
+        }
+        if (rng.endContainer.childNodes[rng.endOffset]) {
+          return rng.endContainer.childNodes[rng.endOffset];
+        }
+        return rng.endContainer;
+      })();
+      const wlkrStartNode = (() => {
+        if (rng.startContainer.nodeType === 3 && rng.startOffset === rng.startContainer.data.length) {
+          wlkr.currentNode = rng.startContainer;
+          return wlkr.nextNode();
+        }
+        if (rng.startContainer.childNodes[rng.startOffset]) {
+          return rng.startContainer.childNodes[rng.startOffset];
+        }
+        return rng.startContainer;
+      })();
       wlkr.currentNode = wlkrStartNode;
-      if (wlkr.currentNode === rng.startContainer && rng.startContainer.nodeType === 3
-          && wlkr.currentNode.data.length === rng.startOffset) {
-            wlkr.nextNode();
-      }
       const textNodeArr = [];
       while (true) {
-        if (wlkr.currentNode === wlkrEndNode && rng.endOffset === 0) break;
         if (wlkr.currentNode.nodeType === 3 && wlkr.currentNode.data.trim() !== '') textNodeArr.push(wlkr.currentNode);
         if (wlkr.currentNode === wlkrEndNode || wlkr.nextNode() === null) break;
       }
