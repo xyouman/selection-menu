@@ -1,7 +1,7 @@
 'use strict';
 
 browser.runtime.onMessage.addListener((selectionStr) => {
-  const getOptions = browser.storage.sync.get({
+  const getOptions = browser.storage.local.get({
     searchEngineURL: 'https://www.google.com/search?q='
   });
   getOptions.then((options) => {

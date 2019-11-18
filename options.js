@@ -1,7 +1,7 @@
 'use strict';
 
 function saveOptions(event) {
-  browser.storage.sync.set({
+  browser.storage.local.set({
     searchEngineName: document.querySelector("select").value,
     searchEngineURL: document.querySelector("#search-engine-url").value,
     findButtonText: document.querySelector("#find-button-text").value,
@@ -11,7 +11,7 @@ function saveOptions(event) {
 }
 
 function restoreOptions() {
-  const getOptions = browser.storage.sync.get({
+  const getOptions = browser.storage.local.get({
     searchEngineName: 'google',
     searchEngineURL: 'https://www.google.com/search?q=',
     findButtonText: 'Find in Google',

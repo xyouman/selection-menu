@@ -1,6 +1,6 @@
 'use strict';
 
-const getOptions = browser.storage.sync.get({
+const getOptions = browser.storage.local.get({
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
 });
