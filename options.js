@@ -1,3 +1,5 @@
+'use strict';
+
 function saveOptions(event) {
   browser.storage.sync.set({
     searchEngineName: document.querySelector("select").value,
