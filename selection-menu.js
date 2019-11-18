@@ -27,12 +27,11 @@ function createSelectionMenu(options) {
   document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;
   
-  let rngArr = [];
   function showSelectionMenu() {
     if (!selectionMenu.hidden) return;
     if (sel.isCollapsed) return;
     let selectedFromStart = false;
-    rngArr = [];
+    const rngArr = [];
     for (let i = 0; i < sel.rangeCount; i++) {
       const rng = sel.getRangeAt(i).cloneRange();
       if (i === (sel.rangeCount - 1) && rng.startContainer === sel.anchorNode
@@ -133,14 +132,14 @@ function createSelectionMenu(options) {
   document.addEventListener('mouseup', (event) => {
     if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
       let selectionStr = sel.toString();
-      // Selection.toString() sometimes gives an empty string
-      // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
       if (selectionStr === '') {
-        for (let i = 0; i < Arr.length; i++) {
-          selectionStr += rngArr[i].toString() + ' ';
+        // Selection.toString() sometimes gives an empty string
+        // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
+        for (let i = 0; i < sel.rangeCount; i++) {
+          selectionStr += sel.getRangeAt(i).toString() + ' ';
         }
       }
-      chrome.runtime.sendMessage(selectionStr.trim());
+      chrome.runtime.sendMessage(selectionStr);
       hideSelectionMenu();
     } else
     if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
