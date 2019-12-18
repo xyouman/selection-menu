@@ -67,7 +67,7 @@ function createSelectionMenu(options) {
         const fc = event.data.fc;
         const offsetFromSelection = 7; // px
         
-        if (ac.top >= fc.top) { // on one line or several lines selected from the end
+        if (ac.top === fc.top || !event.data.selectedFromStart) {
           if (fc.top < offsetFromSelection + selectionMenu.offsetHeight) {
             selectionMenu.style.top = 0 + 'px';
           }
@@ -75,7 +75,7 @@ function createSelectionMenu(options) {
             selectionMenu.style.top = fc.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
         }
-        else { // several lines selected from the start
+        else {
           if (fc.bottom > document.documentElement.clientHeight) {
             selectionMenu.style.top = document.documentElement.clientHeight - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
