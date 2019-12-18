@@ -99,6 +99,7 @@ function showSelectionMenu() {
   window.parent.postMessage({
     action: 'show',
     selection: selectionStr,
+    selectedFromStart: selectedFromStart,
     ac: {
       left: ac.left,
       top: ac.top,
@@ -177,6 +178,7 @@ window.addEventListener('message', (event) => {
       window.parent.postMessage({
         action: 'show',
         selection: event.data.selection,
+        selectedFromStart: event.data.selectedFromStart,
         ac: {
           left: subFrameOffset.left + subFrame.clientLeft + event.data.ac.left,
           top: subFrameOffset.top + subFrame.clientTop + event.data.ac.top,
