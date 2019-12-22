@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Selection Menu",
   "version": "1.2.9",
-  "description": "Pop-up menu after selection",
+  "description": "Pop-up menu after selection with copying and searching for selected text in Google (or other search engines)",
   "background": {
     "scripts": ["background.js"]
   },
