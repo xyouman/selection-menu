@@ -1,18 +1,26 @@
 {
   "manifest_version": 2,
   "name": "Selection Menu",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Pop-up menu after selection with copying and searching for selected text in Google (or other search engines)",
   "background": {
     "scripts": ["background.js"]
   },
   "content_scripts": [
-    {"js": ["selection-menu.js"], "matches": ["<all_urls>"], "run_at": "document_end"},
-    {"js": ["selection-menu-sub.js"], "matches": ["<all_urls>"], "run_at": "document_end", "all_frames": true}
+    {
+      "js": ["selection-menu.js"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_end",
+      "all_frames": false
+    },
+    {
+      "js": ["selection-menu-sub.js"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
   ],
-  "web_accessible_resources": [
-    "selection-menu.css"
-  ],
+  "web_accessible_resources": ["selection-menu.css"],
   "options_ui": {
     "page": "options.html",
     "chrome_style": true
