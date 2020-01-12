@@ -29,6 +29,10 @@
 #moz-ext-sel-menu li:last-child {
   border-right: 0;
 }
+#moz-ext-sel-menu li:before,
+#moz-ext-sel-menu li:after {
+  content: "";
+}
 #moz-ext-sel-menu span {
   color: #000;
   cursor: default;
