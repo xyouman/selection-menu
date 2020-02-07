@@ -5,14 +5,6 @@ chrome.storage.local.get({
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
 }, (options) => {
-  // inject a css file manually
-  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1544305
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = chrome.runtime.getURL("selection-menu.css");
-  document.head.appendChild(link);
-  
   createSelectionMenu(options);
 });
 
