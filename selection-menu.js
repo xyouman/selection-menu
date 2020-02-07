@@ -96,4 +96,11 @@ function createSelectionMenu(options) {
         break;
     }
   });
+
+  chrome.storage.onChanged.addListener((changes) => {
+    selectionMenu.getElementsByTagName('span')[0].style.fontFamily = changes.styleFontFamily.newValue;
+    selectionMenu.getElementsByTagName('span')[0].textContent = changes.findButtonText.newValue;
+    selectionMenu.getElementsByTagName('span')[1].style.fontFamily = changes.styleFontFamily.newValue;
+    selectionMenu.getElementsByTagName('span')[1].textContent = changes.copyButtonText.newValue;
+  });
 }
