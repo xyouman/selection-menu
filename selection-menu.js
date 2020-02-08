@@ -4,12 +4,11 @@ chrome.storage.local.get({
   styleFontFamily: '',
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
-}, (options) => {
-  createSelectionMenu(options);
-});
+}, (options) => void createSelectionMenu(options));
 
 function createSelectionMenu(options) {
   let selectionStr = '';
+  
   const selectionMenu = document.createElement('div');
   selectionMenu.id = 'moz-ext-sel-menu';
   selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
@@ -17,8 +16,8 @@ function createSelectionMenu(options) {
   selectionMenu.getElementsByTagName('span')[0].textContent = options.findButtonText;
   selectionMenu.getElementsByTagName('span')[1].style.fontFamily = options.styleFontFamily;
   selectionMenu.getElementsByTagName('span')[1].textContent = options.copyButtonText;
-  document.body.appendChild(selectionMenu);
   selectionMenu.hidden = true;
+  document.body.appendChild(selectionMenu);
   
   selectionMenu.addEventListener('mousedown', (event) => {
     event.preventDefault();
