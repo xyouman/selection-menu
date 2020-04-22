@@ -132,16 +132,16 @@ function debounce(func, ms) {
   }
 }
 
-document.body.addEventListener('mousedown', hideSelectionMenu);
+window.addEventListener('mousedown', hideSelectionMenu);
 
-document.body.addEventListener('mouseup', (event) => {
+window.addEventListener('mouseup', (event) => {
   if (event.which !== 1) return;
   // showSelectionMenu();
   // because clicking on the same selection resets it only after mouseup event
   setTimeout(showSelectionMenu, 0);
 });
 
-document.body.addEventListener('keydown', (event) => {
+window.addEventListener('keydown', (event) => {
   if (!event.shiftKey) return;
   switch (event.keyCode) {
     case 37: // arrow left
@@ -153,7 +153,7 @@ document.body.addEventListener('keydown', (event) => {
   }
 });
 
-document.body.addEventListener('keyup', (event) => {
+window.addEventListener('keyup', (event) => {
   if (event.keyCode === 16) showSelectionMenu(); // shift
 });
 
