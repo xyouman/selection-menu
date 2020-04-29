@@ -98,27 +98,167 @@ function getSelectionEnd(range, selectionDirection) {
   }
 }
 
-function showSelectionMenu() {
-  const selection = window.getSelection();
-  if (selection.isCollapsed) return;
+function showSelectionMenu(element) { // event.target
+  let selectedString,
+    selectionDirection,
+    selectionStart,
+    selectionEnd;
   
-  const selectedRngArr = getRngArrWithTextNodeBorders(selection);
-  if (selectedRngArr.length === 0) return;
-  
-  const selectionDirection = getSelectionDirection(selection);
-  const lastSelectedRng = (selectionDirection === 'forward') ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
-  const selectionStart = getSelectionStart(lastSelectedRng, selectionDirection);
-  const selectionEnd = getSelectionEnd(lastSelectedRng, selectionDirection);
-  
-  let selectedString = selection.toString();
-  if (selectedString === '') {
-    // Selection.toString() sometimes gives an empty string
-    // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
-    for (let i = 0; i < selection.rangeCount; i++) {
-      selectedString += selection.getRangeAt(i).toString() + ' ';
+  if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA') {
+    selectedString = element.value.substring(element.selectionStart, element.selectionEnd);
+    if (selectedString.trim() === '') return;
+    
+    const properties = [
+      'boxSizing',
+      'width',
+      'height',
+      
+      'borderLeftWidth',
+      'borderTopWidth',
+      'borderRightWidth',
+      'borderBottomWidth',
+      
+      'borderLeftStyle',
+      'borderTopStyle',
+      'borderRightStyle',
+      'borderBottomStyle',
+      
+      'paddingLeft',
+      'paddingTop',
+      'paddingRight',
+      'paddingBottom',
+      
+      // https://developer.mozilla.org/en-US/docs/Web/CSS/font
+      'fontStyle',
+      'fontVariant',
+      'fontWeight',
+      'fontStretch',
+      'fontSize',
+      'lineHeight',
+      'fontFamily',
+      
+      'textAlign',
+      'textTransform',
+      'textIndent',
+      'whiteSpace',
+      'letterSpacing',
+      'wordSpacing',
+      
+      'overflowX',
+      'overflowY',
+      'wordWrap',
+    ];
+    const isFirefox = (typeof InstallTrigger !== 'undefined');
+    const mirrorDiv = document.createElement('div');
+    const textNode = document.createTextNode(element.value);
+    mirrorDiv.appendChild(textNode);
+    
+    const elementStyle = getComputedStyle(element);
+    properties.forEach((property) => {
+      mirrorDiv.style[property] = elementStyle[property];
+    });
+    
+    mirrorDiv.style.visibility = 'hidden';
+    switch (element.nodeName) {
+      case 'TEXTAREA':
+        // by default textarea overflowX overflowY
+        // Chrome 'auto' 'auto'
+        // Firefox 'visible' 'visible'
+        // Chrome ignores overflow 'visible' of the textarea and sets it to 'auto'
+        // but Firefox does not
+        if (elementStyle.overflowX === 'visible') {
+          mirrorDiv.style.overflowX = 'auto';
+        }
+        if (elementStyle.overflowY === 'visible') {
+          mirrorDiv.style.overflowY = 'auto';
+        }
+        
+        // do not display scrollbars in Chrome for correct rendering mirror div
+        // Chrome calculates width of textarea without scrollbar, Firefox - with
+        if (!isFirefox) {
+          mirrorDiv.style.overflowX = 'hidden';
+          mirrorDiv.style.overflowY = 'hidden';
+        }
+        
+        // content of the div ignores padding-bottom if height is set explicitly
+        mirrorDiv.style.height = parseInt(mirrorDiv.style.height)
+          - parseInt(mirrorDiv.style.paddingBottom)
+          + 'px';
+        break;
+      case 'INPUT':
+        mirrorDiv.style.whiteSpace = 'pre';
+        mirrorDiv.style.overflowX = 'hidden';
+        mirrorDiv.style.overflowY = 'hidden';
+        // content of the div ignores padding-right if width is set explicitly
+        mirrorDiv.style.width = parseInt(mirrorDiv.style.width)
+          - parseInt(mirrorDiv.style.paddingRight)
+          + 'px';
+        break;
+    }
+     
+    const elementPosition = element.getBoundingClientRect();
+    mirrorDiv.style.position = 'fixed';
+    mirrorDiv.style.left = elementPosition.left + 'px';
+    mirrorDiv.style.top = elementPosition.top + 'px';
+    
+    document.body.appendChild(mirrorDiv);
+    mirrorDiv.scrollLeft = element.scrollLeft;
+    mirrorDiv.scrollTop = element.scrollTop;
+    
+    const range = document.createRange();
+    range.setStart(textNode, element.selectionStart);
+    range.setEnd(textNode, element.selectionEnd);
+    selectionDirection = element.selectionDirection;
+    selectionStart = getSelectionStart(range, selectionDirection);
+    selectionEnd = getSelectionEnd(range, selectionDirection);
+    
+    let textPositionRight = elementPosition.left
+      + mirrorDiv.clientLeft
+      + mirrorDiv.clientWidth;
+    if (element.nodeName === 'TEXTAREA' && isFirefox) {
+      textPositionRight = textPositionRight
+        - parseInt(mirrorDiv.style.paddingRight);
+    }
+    if (selectionEnd.right > textPositionRight) {
+      selectionEnd.right = textPositionRight;
+      selectionEnd.left = textPositionRight;
+    }
+    
+    if (element.nodeName === 'TEXTAREA') {
+      let textPositionBottom = elementPosition.top
+        + mirrorDiv.clientTop
+        + mirrorDiv.clientHeight;
+      if (!isFirefox) {
+        textPositionBottom = textPositionBottom
+          + parseInt(mirrorDiv.style.paddingBottom);
+      }
+      if (selectionEnd.bottom > textPositionBottom) {
+        selectionEnd.bottom = textPositionBottom;
+      }
+    }
+    
+    document.body.removeChild(mirrorDiv);
+  } else {
+    const selection = window.getSelection();
+    if (selection.isCollapsed) return;
+    
+    const selectedRngArr = getRngArrWithTextNodeBorders(selection);
+    if (selectedRngArr.length === 0) return;
+    
+    selectionDirection = getSelectionDirection(selection);
+    const lastSelectedRng = (selectionDirection === 'forward') ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
+    selectionStart = getSelectionStart(lastSelectedRng, selectionDirection);
+    selectionEnd = getSelectionEnd(lastSelectedRng, selectionDirection);
+    
+    selectedString = selection.toString();
+    if (selectedString === '') {
+      // Selection.toString() sometimes gives an empty string
+      // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
+      for (let i = 0; i < selection.rangeCount; i++) {
+        selectedString += selection.getRangeAt(i).toString() + ' ';
+      }
     }
   }
-  
   window.parent.postMessage({
     action: 'show',
     selectedString: selectedString,
@@ -161,7 +301,7 @@ window.addEventListener('mouseup', (event) => {
   if (event.which !== 1) return;
   // showSelectionMenu();
   // because clicking on the same selection resets it only after mouseup event
-  setTimeout(showSelectionMenu, 0);
+  setTimeout(showSelectionMenu, 0, event.target);
 });
 
 window.addEventListener('keydown', (event) => {
@@ -177,7 +317,7 @@ window.addEventListener('keydown', (event) => {
 });
 
 window.addEventListener('keyup', (event) => {
-  if (event.keyCode === 16) showSelectionMenu(); // shift
+  if (event.keyCode === 16) showSelectionMenu(event.target); // shift
 });
 
 window.addEventListener('scroll', debounce(hideSelectionMenu, 200));
