@@ -52,14 +52,49 @@ function getRngArrWithTextNodeBorders(selection) {
   return rngArr;
 }
 
-function isSelectedFromStart(selection) {
-  const rng = selection.getRangeAt(selection.rangeCount - 1);
-  if (rng.startContainer === selection.anchorNode
-      && rng.startOffset === selection.anchorOffset) {
-    return true;
+function getSelectionDirection(selection) {
+  const lastRange = selection.getRangeAt(selection.rangeCount - 1);
+  if (lastRange.startContainer === selection.anchorNode
+      && lastRange.startOffset === selection.anchorOffset) {
+    return 'forward';
+  } else {
+    return 'backward';
   }
-  else {
-    return false;
+}
+
+function getSelectionStart(range, selectionDirection) {
+  const newRange = document.createRange();
+  if (selectionDirection === 'forward') {
+    newRange.setStart(range.startContainer, range.startOffset);
+    newRange.setEnd(range.startContainer, range.startOffset);
+  } else {
+    newRange.setStart(range.endContainer, range.endOffset);
+    newRange.setEnd(range.endContainer, range.endOffset);
+  }
+  const rect = newRange.getBoundingClientRect();
+  return {
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom
+  }
+}
+
+function getSelectionEnd(range, selectionDirection) {
+  const newRange = document.createRange();
+  if (selectionDirection === 'forward') {
+    newRange.setStart(range.endContainer, range.endOffset);
+    newRange.setEnd(range.endContainer, range.endOffset);
+  } else {
+    newRange.setStart(range.startContainer, range.startOffset);
+    newRange.setEnd(range.startContainer, range.startOffset);
+  }
+  const rect = newRange.getBoundingClientRect();
+  return {
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom
   }
 }
 
@@ -70,47 +105,35 @@ function showSelectionMenu() {
   const selectedRngArr = getRngArrWithTextNodeBorders(selection);
   if (selectedRngArr.length === 0) return;
   
-  const selectedFromStart = isSelectedFromStart(selection);
-  const rng = document.createRange();
-  const lastSelectedRng = (selectedFromStart) ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
+  const selectionDirection = getSelectionDirection(selection);
+  const lastSelectedRng = (selectionDirection === 'forward') ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
+  const selectionStart = getSelectionStart(lastSelectedRng, selectionDirection);
+  const selectionEnd = getSelectionEnd(lastSelectedRng, selectionDirection);
   
-  rng.setStart(lastSelectedRng.startContainer, lastSelectedRng.startOffset);
-  rng.setEnd(lastSelectedRng.startContainer, lastSelectedRng.startOffset);
-  let ac = rng.getBoundingClientRect(); // anchor coordinates
-  rng.setStart(lastSelectedRng.endContainer, lastSelectedRng.endOffset);
-  rng.setEnd(lastSelectedRng.endContainer, lastSelectedRng.endOffset);
-  let fc = rng.getBoundingClientRect(); // focus coordinates
-  
-  if (!selectedFromStart) {
-    const obj = ac;
-    ac = fc;
-    fc = obj;
-  }
-  
-  let selectionStr = selection.toString();
-  if (selectionStr === '') {
+  let selectedString = selection.toString();
+  if (selectedString === '') {
     // Selection.toString() sometimes gives an empty string
     // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
     for (let i = 0; i < selection.rangeCount; i++) {
-      selectionStr += selection.getRangeAt(i).toString() + ' ';
+      selectedString += selection.getRangeAt(i).toString() + ' ';
     }
   }
   
   window.parent.postMessage({
     action: 'show',
-    selection: selectionStr,
-    selectedFromStart: selectedFromStart,
-    ac: {
-      left: ac.left,
-      top: ac.top,
-      right: ac.right,
-      bottom: ac.bottom
+    selectedString: selectedString,
+    selectionDirection: selectionDirection,
+    selectionStart: {
+      left: selectionStart.left,
+      top: selectionStart.top,
+      right: selectionStart.right,
+      bottom: selectionStart.bottom
     },
-    fc: {
-      left: fc.left,
-      top: fc.top,
-      right: fc.right,
-      bottom: fc.bottom
+    selectionEnd: {
+      left: selectionEnd.left,
+      top: selectionEnd.top,
+      right: selectionEnd.right,
+      bottom: selectionEnd.bottom
     }
   }, '*');
 }
@@ -132,16 +155,16 @@ function debounce(func, ms) {
   }
 }
 
-document.body.addEventListener('mousedown', hideSelectionMenu);
+window.addEventListener('mousedown', hideSelectionMenu);
 
-document.body.addEventListener('mouseup', (event) => {
+window.addEventListener('mouseup', (event) => {
   if (event.which !== 1) return;
   // showSelectionMenu();
   // because clicking on the same selection resets it only after mouseup event
   setTimeout(showSelectionMenu, 0);
 });
 
-document.body.addEventListener('keydown', (event) => {
+window.addEventListener('keydown', (event) => {
   if (!event.shiftKey) return;
   switch (event.keyCode) {
     case 37: // arrow left
@@ -153,7 +176,7 @@ document.body.addEventListener('keydown', (event) => {
   }
 });
 
-document.body.addEventListener('keyup', (event) => {
+window.addEventListener('keyup', (event) => {
   if (event.keyCode === 16) showSelectionMenu(); // shift
 });
 
@@ -177,26 +200,25 @@ window.addEventListener('message', (event) => {
       const subFrameOffset = subFrame.getBoundingClientRect();
       window.parent.postMessage({
         action: 'show',
-        selection: event.data.selection,
-        selectedFromStart: event.data.selectedFromStart,
-        ac: {
-          left: subFrameOffset.left + subFrame.clientLeft + event.data.ac.left,
-          top: subFrameOffset.top + subFrame.clientTop + event.data.ac.top,
-          right: subFrameOffset.left + subFrame.clientLeft + event.data.ac.right,
-          bottom: subFrameOffset.top + subFrame.clientTop + event.data.ac.bottom
+        selectedString: event.data.selectedString,
+        selectionDirection: event.data.selectionDirection,
+        selectionStart: {
+          left: subFrameOffset.left + subFrame.clientLeft + event.data.selectionStart.left,
+          top: subFrameOffset.top + subFrame.clientTop + event.data.selectionStart.top,
+          right: subFrameOffset.left + subFrame.clientLeft + event.data.selectionStart.right,
+          bottom: subFrameOffset.top + subFrame.clientTop + event.data.selectionStart.bottom
         },
-        fc: {
-          left: subFrameOffset.left + subFrame.clientLeft + event.data.fc.left,
-          top: subFrameOffset.top + subFrame.clientTop + event.data.fc.top,
-          right: subFrameOffset.left + subFrame.clientLeft + event.data.fc.right,
-          bottom: subFrameOffset.top + subFrame.clientTop + event.data.fc.bottom
+        selectionEnd: {
+          left: subFrameOffset.left + subFrame.clientLeft + event.data.selectionEnd.left,
+          top: subFrameOffset.top + subFrame.clientTop + event.data.selectionEnd.top,
+          right: subFrameOffset.left + subFrame.clientLeft + event.data.selectionEnd.right,
+          bottom: subFrameOffset.top + subFrame.clientTop + event.data.selectionEnd.bottom
         }
       }, "*");
       break;
     case 'hide':
       window.parent.postMessage({
-        action: 'hide',
-        selection: event.data.selection,
+        action: 'hide'
       }, "*");
       break;
   }

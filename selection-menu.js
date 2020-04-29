@@ -7,7 +7,7 @@ chrome.storage.local.get({
 }, (options) => void createSelectionMenu(options));
 
 function createSelectionMenu(options) {
-  let selectionStr = '';
+  let selectedString = '';
   
   const selectionMenu = document.createElement('div');
   selectionMenu.id = 'moz-ext-sel-menu';
@@ -28,14 +28,13 @@ function createSelectionMenu(options) {
     if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
       chrome.runtime.sendMessage({
         action: 'find',
-        selection: selectionStr
+        selectedString: selectedString
       });
       selectionMenu.hidden = true;
-    }
-    else if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
+    } else if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
       chrome.runtime.sendMessage({
         action: 'copy',
-        selection: selectionStr
+        selectedString: selectedString
       });
       selectionMenu.hidden = true;
     }
@@ -53,39 +52,33 @@ function createSelectionMenu(options) {
         if (!selectionMenu.hidden) return;
         selectionMenu.hidden = false;
         
-        selectionStr = event.data.selection;
-        const ac = event.data.ac;
-        const fc = event.data.fc;
+        selectedString = event.data.selectedString;
+        const selectionStart = event.data.selectionStart;
+        const selectionEnd = event.data.selectionEnd;
         const offsetFromSelection = 7; // px
         
-        if (ac.top === fc.top || !event.data.selectedFromStart) {
-          if (fc.top < offsetFromSelection + selectionMenu.offsetHeight) {
+        if (selectionStart.top === selectionEnd.top || event.data.selectionDirection === 'backward') {
+          if (selectionEnd.top < offsetFromSelection + selectionMenu.offsetHeight) {
             selectionMenu.style.top = 0 + 'px';
+          } else {
+            selectionMenu.style.top = selectionEnd.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           }
-          else {
-            selectionMenu.style.top = fc.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
-          }
-        }
-        else {
-          if (fc.bottom > document.documentElement.clientHeight) {
+        } else {
+          if (selectionEnd.bottom > document.documentElement.clientHeight) {
             selectionMenu.style.top = document.documentElement.clientHeight - offsetFromSelection - selectionMenu.offsetHeight + 'px';
-          }
-          else if (fc.bottom + offsetFromSelection + selectionMenu.offsetHeight > document.documentElement.clientHeight) {
-            selectionMenu.style.top = fc.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
-          }
-          else {
-            selectionMenu.style.top = fc.bottom + offsetFromSelection + 'px';
+          } else if (selectionEnd.bottom + offsetFromSelection + selectionMenu.offsetHeight > document.documentElement.clientHeight) {
+            selectionMenu.style.top = selectionEnd.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
+          } else {
+            selectionMenu.style.top = selectionEnd.bottom + offsetFromSelection + 'px';
           }
         }
         
-        if (fc.right + selectionMenu.offsetWidth/2 > document.documentElement.clientWidth) {
+        if (selectionEnd.right + selectionMenu.offsetWidth/2 > document.documentElement.clientWidth) {
           selectionMenu.style.left = document.documentElement.clientWidth - selectionMenu.offsetWidth + 'px';
-        }
-        else if (fc.left < selectionMenu.offsetWidth/2) {
+        } else if (selectionEnd.left < selectionMenu.offsetWidth/2) {
           selectionMenu.style.left = 0 + 'px';
-        }
-        else {
-          selectionMenu.style.left = fc.left - selectionMenu.offsetWidth/2 + 'px';
+        } else {
+          selectionMenu.style.left = selectionEnd.left - selectionMenu.offsetWidth/2 + 'px';
         }
         
         break;
@@ -95,7 +88,7 @@ function createSelectionMenu(options) {
         break;
     }
   });
-
+  
   chrome.storage.onChanged.addListener((changes) => {
     selectionMenu.getElementsByTagName('span')[0].style.fontFamily = changes.styleFontFamily.newValue;
     selectionMenu.getElementsByTagName('span')[0].textContent = changes.findButtonText.newValue;
