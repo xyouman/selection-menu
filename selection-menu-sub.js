@@ -305,14 +305,18 @@ window.addEventListener('mouseup', (event) => {
 });
 
 window.addEventListener('keydown', (event) => {
-  if (!event.shiftKey) return;
-  switch (event.key) {
-    case 'ArrowLeft':
-    case 'ArrowUp':
-    case 'ArrowRight':
-    case 'ArrowDown':
-      hideSelectionMenu();
-      break;
+  if (event.code === 'KeyA' && (event.ctrlKey || event.metaKey)) {
+    hideSelectionMenu();
+  }
+  if (event.shiftKey) {
+    switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'ArrowRight':
+      case 'ArrowDown':
+        hideSelectionMenu();
+        break;
+    }
   }
 });
 
