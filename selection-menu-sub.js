@@ -305,19 +305,23 @@ window.addEventListener('mouseup', (event) => {
 });
 
 window.addEventListener('keydown', (event) => {
-  if (!event.shiftKey) return;
-  switch (event.keyCode) {
-    case 37: // arrow left
-    case 38: // arrow up
-    case 39: // arrow right
-    case 40: // arrow down
-      hideSelectionMenu();
-      break;
+  if (event.code === 'KeyA' && (event.ctrlKey || event.metaKey)) {
+    hideSelectionMenu();
+  }
+  if (event.shiftKey) {
+    switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'ArrowRight':
+      case 'ArrowDown':
+        hideSelectionMenu();
+        break;
+    }
   }
 });
 
 window.addEventListener('keyup', (event) => {
-  if (event.keyCode === 16) showSelectionMenu(event.target); // shift
+  if (event.key === 'Shift') showSelectionMenu(event.target);
 });
 
 window.addEventListener('scroll', debounce(hideSelectionMenu, 200));
