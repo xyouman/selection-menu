@@ -34,7 +34,7 @@
   content: "";
 }
 #moz-ext-sel-menu span {
-  color: #000;
+  color: #222;
   cursor: default;
   display: inline-block;
   font-family: sans-serif;
