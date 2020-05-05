@@ -343,21 +343,24 @@ window.addEventListener('message', (event) => {
       }
       if (subFrame === undefined) throw new Error("can't find sub iframe");
       const subFrameOffset = subFrame.getBoundingClientRect();
+      const subFrameStyle = getComputedStyle(subFrame);
+      const subFramePaddingLeft = parseInt(subFrameStyle.paddingLeft);
+      const subFramePaddingTop = parseInt(subFrameStyle.paddingTop);
       window.parent.postMessage({
         action: 'show',
         selectedString: event.data.selectedString,
         selectionDirection: event.data.selectionDirection,
         selectionStart: {
-          left: subFrameOffset.left + subFrame.clientLeft + event.data.selectionStart.left,
-          top: subFrameOffset.top + subFrame.clientTop + event.data.selectionStart.top,
-          right: subFrameOffset.left + subFrame.clientLeft + event.data.selectionStart.right,
-          bottom: subFrameOffset.top + subFrame.clientTop + event.data.selectionStart.bottom
+          left: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionStart.left,
+          top: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionStart.top,
+          right: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionStart.right,
+          bottom: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionStart.bottom
         },
         selectionEnd: {
-          left: subFrameOffset.left + subFrame.clientLeft + event.data.selectionEnd.left,
-          top: subFrameOffset.top + subFrame.clientTop + event.data.selectionEnd.top,
-          right: subFrameOffset.left + subFrame.clientLeft + event.data.selectionEnd.right,
-          bottom: subFrameOffset.top + subFrame.clientTop + event.data.selectionEnd.bottom
+          left: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionEnd.left,
+          top: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionEnd.top,
+          right: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionEnd.right,
+          bottom: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionEnd.bottom
         }
       }, "*");
       break;
