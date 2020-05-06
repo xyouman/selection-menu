@@ -13,13 +13,13 @@ chrome.runtime.onMessage.addListener((message) => {
       });
       break;
     case 'copy':
-      const el = document.createElement('textarea');
-      el.textContent = message.selectedString;
       const body = document.body;
-      body.appendChild(el);
-      el.select();
+      const textarea = document.createElement('textarea');
+      textarea.textContent = message.selectedString;
+      body.appendChild(textarea);
+      textarea.select();
       document.execCommand('copy');
-      body.removeChild(el);
+      body.removeChild(textarea);
       break;
   }
 });

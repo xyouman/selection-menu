@@ -57,19 +57,15 @@ function createSelectionMenu(options) {
         const selectionEnd = event.data.selectionEnd;
         const offsetFromSelection = 7; // px
         
-        if (selectionStart.top === selectionEnd.top || event.data.selectionDirection === 'backward') {
-          if (selectionEnd.top < offsetFromSelection + selectionMenu.offsetHeight) {
-            selectionMenu.style.top = 0 + 'px';
-          } else {
-            selectionMenu.style.top = selectionEnd.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
-          }
+        if ((selectionStart.top === selectionEnd.top || event.data.selectionDirection === 'backward')
+            && (selectionEnd.top > offsetFromSelection + selectionMenu.offsetHeight)) {
+          selectionMenu.style.top = selectionEnd.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
         } else {
+          selectionMenu.style.top = selectionEnd.bottom + offsetFromSelection + 'px';
           if (selectionEnd.bottom > document.documentElement.clientHeight) {
             selectionMenu.style.top = document.documentElement.clientHeight - offsetFromSelection - selectionMenu.offsetHeight + 'px';
           } else if (selectionEnd.bottom + offsetFromSelection + selectionMenu.offsetHeight > document.documentElement.clientHeight) {
             selectionMenu.style.top = selectionEnd.top - offsetFromSelection - selectionMenu.offsetHeight + 'px';
-          } else {
-            selectionMenu.style.top = selectionEnd.bottom + offsetFromSelection + 'px';
           }
         }
         
