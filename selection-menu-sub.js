@@ -318,15 +318,15 @@ window.addEventListener('keydown', (event) => {
         break;
     }
   }
-});
+}, true);
 
 window.addEventListener('keyup', (event) => {
   if (event.key === 'Shift') showSelectionMenu(event.target);
-});
+}, true);
 
 window.addEventListener('scroll', debounce(hideSelectionMenu, 200), true);
-window.addEventListener('resize', debounce(hideSelectionMenu, 200));
-window.addEventListener('input', debounce(hideSelectionMenu, 200));
+window.addEventListener('resize', debounce(hideSelectionMenu, 200), true);
+window.addEventListener('input', debounce(hideSelectionMenu, 200), true);
 
 window.addEventListener('message', (event) => {
   if (event.source === window.top) return;
