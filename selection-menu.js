@@ -12,10 +12,11 @@ function createSelectionMenu(options) {
   const selectionMenu = document.createElement('div');
   selectionMenu.id = 'moz-ext-sel-menu';
   selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
-  selectionMenu.getElementsByTagName('span')[0].style.fontFamily = options.styleFontFamily;
-  selectionMenu.getElementsByTagName('span')[0].textContent = options.findButtonText;
-  selectionMenu.getElementsByTagName('span')[1].style.fontFamily = options.styleFontFamily;
-  selectionMenu.getElementsByTagName('span')[1].textContent = options.copyButtonText;
+  const spans = selectionMenu.querySelectorAll('span');
+  spans[0].style.fontFamily = options.styleFontFamily;
+  spans[0].textContent = options.findButtonText;
+  spans[1].style.fontFamily = options.styleFontFamily;
+  spans[1].textContent = options.copyButtonText;
   selectionMenu.hidden = true;
   document.body.appendChild(selectionMenu);
   
@@ -25,18 +26,21 @@ function createSelectionMenu(options) {
   });
   
   selectionMenu.addEventListener('mouseup', (event) => {
-    if (event.target === selectionMenu.getElementsByTagName('span')[0]) {
-      chrome.runtime.sendMessage({
-        action: 'find',
-        selectedString: selectedString
-      });
-      selectionMenu.hidden = true;
-    } else if (event.target === selectionMenu.getElementsByTagName('span')[1]) {
-      chrome.runtime.sendMessage({
-        action: 'copy',
-        selectedString: selectedString
-      });
-      selectionMenu.hidden = true;
+    switch (event.target) {
+      case spans[0]: // Find in
+        chrome.runtime.sendMessage({
+          action: 'find',
+          selectedString: selectedString
+        });
+        selectionMenu.hidden = true;
+        break;
+      case spans[1]: // Copy
+        chrome.runtime.sendMessage({
+          action: 'copy',
+          selectedString: selectedString
+        });
+        selectionMenu.hidden = true;
+        break;
     }
     event.stopPropagation();
   });
@@ -86,9 +90,23 @@ function createSelectionMenu(options) {
   });
   
   chrome.storage.onChanged.addListener((changes) => {
-    selectionMenu.getElementsByTagName('span')[0].style.fontFamily = changes.styleFontFamily.newValue;
-    selectionMenu.getElementsByTagName('span')[0].textContent = changes.findButtonText.newValue;
-    selectionMenu.getElementsByTagName('span')[1].style.fontFamily = changes.styleFontFamily.newValue;
-    selectionMenu.getElementsByTagName('span')[1].textContent = changes.copyButtonText.newValue;
+    for (let key in changes) {
+      if ("oldValue" in changes[key]
+          && changes[key].newValue === changes[key].oldValue) {
+        continue;
+      }
+      switch (key) {
+        case 'styleFontFamily':
+          spans[0].style.fontFamily = changes[key].newValue;
+          spans[1].style.fontFamily = changes[key].newValue;
+          break;
+        case 'findButtonText':
+          spans[0].textContent = changes[key].newValue;
+          break;
+        case 'copyButtonText':
+          spans[1].textContent = changes[key].newValue;
+          break;
+      }
+    }
   });
 }
