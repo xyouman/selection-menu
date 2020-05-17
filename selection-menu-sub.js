@@ -101,174 +101,182 @@ function getSelectionEnd(range, selectionDirection) {
 function showSelectionMenu(element) { // event.target
   let selectedString,
     selectionDirection,
+    onOneLine,
     selectionStart,
     selectionEnd;
   
-  if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA') {
-    selectedString = element.value.substring(element.selectionStart, element.selectionEnd);
-    if (selectedString.trim() === '') return;
-    
-    const properties = [
-      'boxSizing',
-      'width',
-      'height',
+  switch (element.nodeName) {
+    case 'INPUT':
+    case 'TEXTAREA':
+      selectedString = element.value.substring(element.selectionStart, element.selectionEnd);
+      if (selectedString.trim() === '') return;
       
-      'borderLeftWidth',
-      'borderTopWidth',
-      'borderRightWidth',
-      'borderBottomWidth',
-      
-      'borderLeftStyle',
-      'borderTopStyle',
-      'borderRightStyle',
-      'borderBottomStyle',
-      
-      'paddingLeft',
-      'paddingTop',
-      'paddingRight',
-      'paddingBottom',
-      
-      // https://developer.mozilla.org/en-US/docs/Web/CSS/font
-      'fontStyle',
-      'fontVariant',
-      'fontWeight',
-      'fontStretch',
-      'fontSize',
-      'lineHeight',
-      'fontFamily',
-      
-      'textAlign',
-      'textTransform',
-      'textIndent',
-      'whiteSpace',
-      'letterSpacing',
-      'wordSpacing',
-      
-      'overflowX',
-      'overflowY',
-      'wordWrap',
-    ];
-    const isFirefox = (typeof InstallTrigger !== 'undefined');
-    const mirrorDiv = document.createElement('div');
-    const textNode = document.createTextNode(element.value);
-    mirrorDiv.appendChild(textNode);
-    
-    const elementStyle = getComputedStyle(element);
-    properties.forEach((property) => {
-      mirrorDiv.style[property] = elementStyle[property];
-    });
-    
-    mirrorDiv.style.visibility = 'hidden';
-    switch (element.nodeName) {
-      case 'TEXTAREA':
-        // by default textarea overflowX overflowY
-        // Chrome 'auto' 'auto'
-        // Firefox 'visible' 'visible'
-        // Chrome ignores overflow 'visible' of the textarea and sets it to 'auto'
-        // but Firefox does not
-        if (elementStyle.overflowX === 'visible') {
-          mirrorDiv.style.overflowX = 'auto';
-        }
-        if (elementStyle.overflowY === 'visible') {
-          mirrorDiv.style.overflowY = 'auto';
-        }
+      const properties = [
+        'boxSizing',
+        'width',
+        'height',
         
-        // do not display scrollbars in Chrome for correct rendering mirror div
-        // Chrome calculates width of textarea without scrollbar, Firefox - with
-        if (!isFirefox) {
+        'borderLeftWidth',
+        'borderTopWidth',
+        'borderRightWidth',
+        'borderBottomWidth',
+        
+        'borderLeftStyle',
+        'borderTopStyle',
+        'borderRightStyle',
+        'borderBottomStyle',
+        
+        'paddingLeft',
+        'paddingTop',
+        'paddingRight',
+        'paddingBottom',
+        
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/font
+        'fontStyle',
+        'fontVariant',
+        'fontWeight',
+        'fontStretch',
+        'fontSize',
+        'lineHeight',
+        'fontFamily',
+        
+        'textAlign',
+        'textTransform',
+        'textIndent',
+        'whiteSpace',
+        'letterSpacing',
+        'wordSpacing',
+        
+        'overflowX',
+        'overflowY',
+        'wordWrap',
+      ];
+      const isFirefox = (typeof InstallTrigger !== 'undefined');
+      const mirrorDiv = document.createElement('div');
+      const textNode = document.createTextNode(element.value);
+      mirrorDiv.appendChild(textNode);
+      
+      const elementStyle = getComputedStyle(element);
+      properties.forEach((property) => {
+        mirrorDiv.style[property] = elementStyle[property];
+      });
+      
+      mirrorDiv.style.visibility = 'hidden';
+      switch (element.nodeName) {
+        case 'TEXTAREA':
+          // by default textarea overflowX overflowY
+          // Chrome 'auto' 'auto'
+          // Firefox 'visible' 'visible'
+          // Chrome ignores overflow 'visible' of the textarea and sets it to 'auto'
+          // but Firefox does not
+          if (elementStyle.overflowX === 'visible') {
+            mirrorDiv.style.overflowX = 'auto';
+          }
+          if (elementStyle.overflowY === 'visible') {
+            mirrorDiv.style.overflowY = 'auto';
+          }
+          
+          // do not display scrollbars in Chrome for correct rendering mirror div
+          // Chrome calculates width of textarea without scrollbar, Firefox - with
+          if (!isFirefox) {
+            mirrorDiv.style.overflowX = 'hidden';
+            mirrorDiv.style.overflowY = 'hidden';
+          }
+          
+          // content of the div ignores padding-bottom if height is set explicitly
+          mirrorDiv.style.height = parseInt(mirrorDiv.style.height)
+            - parseInt(mirrorDiv.style.paddingBottom)
+            + 'px';
+          break;
+        case 'INPUT':
+          mirrorDiv.style.whiteSpace = 'pre';
           mirrorDiv.style.overflowX = 'hidden';
           mirrorDiv.style.overflowY = 'hidden';
+          // content of the div ignores padding-right if width is set explicitly
+          mirrorDiv.style.width = parseInt(mirrorDiv.style.width)
+            - parseInt(mirrorDiv.style.paddingRight)
+            + 'px';
+          break;
+      }
+       
+      const elementPosition = element.getBoundingClientRect();
+      mirrorDiv.style.position = 'fixed';
+      mirrorDiv.style.left = elementPosition.left + 'px';
+      mirrorDiv.style.top = elementPosition.top + 'px';
+      
+      document.body.appendChild(mirrorDiv);
+      mirrorDiv.scrollLeft = element.scrollLeft;
+      mirrorDiv.scrollTop = element.scrollTop;
+      
+      const range = document.createRange();
+      range.setStart(textNode, element.selectionStart);
+      range.setEnd(textNode, element.selectionEnd);
+      selectionDirection = element.selectionDirection;
+      selectionStart = getSelectionStart(range, selectionDirection);
+      selectionEnd = getSelectionEnd(range, selectionDirection);
+      
+      let textBorderRight;
+      switch (element.nodeName) {
+        case 'INPUT':
+          textBorderRight = elementPosition.left
+            + mirrorDiv.clientLeft
+            + mirrorDiv.clientWidth;
+          break;
+        case 'TEXTAREA':
+          textBorderRight = elementPosition.left
+            + mirrorDiv.clientLeft
+            + mirrorDiv.clientWidth
+            - parseInt(mirrorDiv.style.paddingRight);
+          let textBorderBottom = elementPosition.top
+            + mirrorDiv.clientTop
+            + mirrorDiv.clientHeight;
+          if (!isFirefox) {
+            textBorderRight = textBorderRight
+              + parseInt(mirrorDiv.style.paddingRight);
+            textBorderBottom = textBorderBottom
+              + parseInt(mirrorDiv.style.paddingBottom);
+          }
+          selectionEnd.bottom = Math.min(selectionEnd.bottom, textBorderBottom);
+          break;
+      }
+      selectionEnd.left = selectionEnd.right = Math.min(selectionEnd.right, textBorderRight);
+      
+      document.body.removeChild(mirrorDiv);
+      break;
+    default:
+      const selection = window.getSelection();
+      if (selection.isCollapsed) return;
+      
+      const selectedRngArr = getRngArrWithTextNodeBorders(selection);
+      if (selectedRngArr.length === 0) return;
+      
+      selectionDirection = getSelectionDirection(selection);
+      const lastSelectedRng = (selectionDirection === 'forward') ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
+      selectionStart = getSelectionStart(lastSelectedRng, selectionDirection);
+      selectionEnd = getSelectionEnd(lastSelectedRng, selectionDirection);
+      
+      selectedString = selection.toString();
+      if (selectedString === '') {
+        // Selection.toString() sometimes gives an empty string
+        // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
+        for (let i = 0; i < selection.rangeCount; i++) {
+          selectedString += selection.getRangeAt(i).toString() + ' ';
         }
-        
-        // content of the div ignores padding-bottom if height is set explicitly
-        mirrorDiv.style.height = parseInt(mirrorDiv.style.height)
-          - parseInt(mirrorDiv.style.paddingBottom)
-          + 'px';
-        break;
-      case 'INPUT':
-        mirrorDiv.style.whiteSpace = 'pre';
-        mirrorDiv.style.overflowX = 'hidden';
-        mirrorDiv.style.overflowY = 'hidden';
-        // content of the div ignores padding-right if width is set explicitly
-        mirrorDiv.style.width = parseInt(mirrorDiv.style.width)
-          - parseInt(mirrorDiv.style.paddingRight)
-          + 'px';
-        break;
-    }
-     
-    const elementPosition = element.getBoundingClientRect();
-    mirrorDiv.style.position = 'fixed';
-    mirrorDiv.style.left = elementPosition.left + 'px';
-    mirrorDiv.style.top = elementPosition.top + 'px';
-    
-    document.body.appendChild(mirrorDiv);
-    mirrorDiv.scrollLeft = element.scrollLeft;
-    mirrorDiv.scrollTop = element.scrollTop;
-    
-    const range = document.createRange();
-    range.setStart(textNode, element.selectionStart);
-    range.setEnd(textNode, element.selectionEnd);
-    selectionDirection = element.selectionDirection;
-    selectionStart = getSelectionStart(range, selectionDirection);
-    selectionEnd = getSelectionEnd(range, selectionDirection);
-    
-    let textPositionRight = elementPosition.left
-      + mirrorDiv.clientLeft
-      + mirrorDiv.clientWidth;
-    if (element.nodeName === 'TEXTAREA' && isFirefox) {
-      textPositionRight = textPositionRight
-        - parseInt(mirrorDiv.style.paddingRight);
-    }
-    if (selectionEnd.right > textPositionRight) {
-      selectionEnd.right = textPositionRight;
-      selectionEnd.left = textPositionRight;
-    }
-    
-    if (element.nodeName === 'TEXTAREA') {
-      let textPositionBottom = elementPosition.top
-        + mirrorDiv.clientTop
-        + mirrorDiv.clientHeight;
-      if (!isFirefox) {
-        textPositionBottom = textPositionBottom
-          + parseInt(mirrorDiv.style.paddingBottom);
       }
-      if (selectionEnd.bottom > textPositionBottom) {
-        selectionEnd.bottom = textPositionBottom;
-      }
-    }
-    
-    document.body.removeChild(mirrorDiv);
-  } else {
-    const selection = window.getSelection();
-    if (selection.isCollapsed) return;
-    
-    const selectedRngArr = getRngArrWithTextNodeBorders(selection);
-    if (selectedRngArr.length === 0) return;
-    
-    selectionDirection = getSelectionDirection(selection);
-    const lastSelectedRng = (selectionDirection === 'forward') ? selectedRngArr[selectedRngArr.length - 1] : selectedRngArr[0];
-    selectionStart = getSelectionStart(lastSelectedRng, selectionDirection);
-    selectionEnd = getSelectionEnd(lastSelectedRng, selectionDirection);
-    
-    selectedString = selection.toString();
-    if (selectedString === '') {
-      // Selection.toString() sometimes gives an empty string
-      // see https://bugzilla.mozilla.org/show_bug.cgi?id=1542530
-      for (let i = 0; i < selection.rangeCount; i++) {
-        selectedString += selection.getRangeAt(i).toString() + ' ';
-      }
-    }
+      break;
   }
+  
+  if (selectionStart.top === selectionEnd.top) {
+    onOneLine = true;
+  } else {
+    onOneLine = false;
+  }
+  
   window.parent.postMessage({
     action: 'show',
     selectedString: selectedString,
     selectionDirection: selectionDirection,
-    selectionStart: {
-      left: selectionStart.left,
-      top: selectionStart.top,
-      right: selectionStart.right,
-      bottom: selectionStart.bottom
-    },
+    onOneLine: onOneLine,
     selectionEnd: {
       left: selectionEnd.left,
       top: selectionEnd.top,
@@ -349,12 +357,7 @@ window.addEventListener('message', (event) => {
         action: 'show',
         selectedString: event.data.selectedString,
         selectionDirection: event.data.selectionDirection,
-        selectionStart: {
-          left: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionStart.left,
-          top: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionStart.top,
-          right: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionStart.right,
-          bottom: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionStart.bottom
-        },
+        onOneLine: event.data.onOneLine,
         selectionEnd: {
           left: subFrameOffset.left + subFrame.clientLeft + subFramePaddingLeft + event.data.selectionEnd.left,
           top: subFrameOffset.top + subFrame.clientTop + subFramePaddingTop + event.data.selectionEnd.top,
