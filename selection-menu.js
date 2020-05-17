@@ -10,22 +10,79 @@ function createSelectionMenu(options) {
   let selectedString = '';
   
   const selectionMenu = document.createElement('div');
-  selectionMenu.id = 'moz-ext-sel-menu';
-  selectionMenu.innerHTML = '<ul><li><span></span></li><li><span></span></li></ul>';
-  const spans = selectionMenu.querySelectorAll('span');
+  selectionMenu.hidden = true;
+  document.body.appendChild(selectionMenu);
+  
+  const shadowRoot = selectionMenu.attachShadow({
+    mode: 'closed'
+  });
+  shadowRoot.innerHTML = `
+    <style>
+      :host {
+        background: transparent none repeat scroll 0% 0% !important;
+        border-style: none !important;
+        box-shadow: none !important;
+        font-size: medium !important;
+        font-stretch: normal !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-weight: normal !important;
+        letter-spacing: normal !important;
+        line-height: normal !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        position: fixed !important;
+        text-indent: 0 !important;
+        text-transform: none !important;
+        width: auto !important;
+        word-spacing: normal !important;
+        z-index: 9999 !important;
+      }
+      ul {
+        background-color: #f2f2f2;
+        border: 1px solid #d7d7d7;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        display: inline-block;
+        list-style: none;
+        margin: 0;
+        padding: 3px 0;
+        white-space: nowrap;
+      }
+      li {
+        border-right: 1px solid #d7d7d7;
+        display: inline-block;
+        padding: 0 3px;
+      }
+      li:last-child {
+        border-right: 0;
+      }
+      span {
+        color: #222;
+        cursor: default;
+        display: inline-block;
+        font-family: sans-serif;
+        font-size: 13px;
+        line-height: 18px;
+        padding: 3px 7px;
+      }
+      span:hover {
+        background-color: #8bb8dc;
+      }
+    </style>
+    <ul><li><span></span></li><li><span></span></li></ul>`;
+  const spans = shadowRoot.querySelectorAll('span');
   spans[0].style.fontFamily = options.styleFontFamily;
   spans[0].textContent = options.findButtonText;
   spans[1].style.fontFamily = options.styleFontFamily;
   spans[1].textContent = options.copyButtonText;
-  selectionMenu.hidden = true;
-  document.body.appendChild(selectionMenu);
   
-  selectionMenu.addEventListener('mousedown', (event) => {
+  shadowRoot.addEventListener('mousedown', (event) => {
     event.preventDefault();
     event.stopPropagation();
   });
   
-  selectionMenu.addEventListener('mouseup', (event) => {
+  shadowRoot.addEventListener('mouseup', (event) => {
     switch (event.target) {
       case spans[0]: // Find in
         chrome.runtime.sendMessage({
@@ -45,7 +102,7 @@ function createSelectionMenu(options) {
     event.stopPropagation();
   });
   
-  selectionMenu.addEventListener('click', (event) => {
+  shadowRoot.addEventListener('click', (event) => {
     event.stopPropagation();
   });
   
