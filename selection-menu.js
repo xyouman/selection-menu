@@ -90,9 +90,23 @@ function createSelectionMenu(options) {
   });
   
   chrome.storage.onChanged.addListener((changes) => {
-    spans[0].style.fontFamily = changes.styleFontFamily.newValue;
-    spans[0].textContent = changes.findButtonText.newValue;
-    spans[1].style.fontFamily = changes.styleFontFamily.newValue;
-    spans[1].textContent = changes.copyButtonText.newValue;
+    for (let key in changes) {
+      if ("oldValue" in changes[key]
+          && changes[key].newValue === changes[key].oldValue) {
+        continue;
+      }
+      switch (key) {
+        case 'styleFontFamily':
+          spans[0].style.fontFamily = changes[key].newValue;
+          spans[1].style.fontFamily = changes[key].newValue;
+          break;
+        case 'findButtonText':
+          spans[0].textContent = changes[key].newValue;
+          break;
+        case 'copyButtonText':
+          spans[1].textContent = changes[key].newValue;
+          break;
+      }
+    }
   });
 }
