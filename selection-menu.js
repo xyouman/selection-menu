@@ -26,6 +26,7 @@ function createSelectionMenu(options) {
       border-style: none !important;
       box-shadow: none !important;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+      font-family: sans-serif !important;
       font-size: medium !important;
       font-stretch: normal !important;
       font-style: normal !important;
