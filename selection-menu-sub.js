@@ -303,14 +303,33 @@ function debounce(func, ms) {
   }
 }
 
-window.addEventListener('mousedown', hideSelectionMenu);
+let isLeftMouseDown = false;
+let isScrollByClick = false;
+
+window.addEventListener('mousedown', (event) => {
+  if (event.which === 1) isLeftMouseDown = true;
+  hideSelectionMenu();
+});
 
 window.addEventListener('mouseup', (event) => {
   if (event.which !== 1) return;
+  isLeftMouseDown = false;
+  if (isScrollByClick) {
+    isScrollByClick = false;
+    return;
+  }
   // showSelectionMenu();
   // because clicking on the same selection resets it only after mouseup event
   setTimeout(showSelectionMenu, 0, event.target);
 });
+
+window.addEventListener('scroll', debounce(() => {
+  if (isLeftMouseDown) {
+    isScrollByClick = true;
+    return;
+  }
+  hideSelectionMenu();
+}, 200), true);
 
 window.addEventListener('keydown', (event) => {
   if (event.code === 'KeyA' && (event.ctrlKey || event.metaKey)) {
@@ -332,7 +351,6 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'Shift') showSelectionMenu(event.target);
 }, true);
 
-window.addEventListener('scroll', debounce(hideSelectionMenu, 200), true);
 window.addEventListener('resize', debounce(hideSelectionMenu, 200), true);
 window.addEventListener('input', debounce(hideSelectionMenu, 200), true);
 
