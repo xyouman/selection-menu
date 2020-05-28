@@ -335,15 +335,17 @@ window.addEventListener('keydown', (event) => {
   if (event.code === 'KeyA' && (event.ctrlKey || event.metaKey)) {
     hideSelectionMenu();
   }
-  if (event.shiftKey) {
-    switch (event.key) {
-      case 'ArrowLeft':
-      case 'ArrowUp':
-      case 'ArrowRight':
-      case 'ArrowDown':
-        hideSelectionMenu();
-        break;
-    }
+  switch (event.key) {
+    case 'ArrowLeft':
+    case 'ArrowUp':
+    case 'ArrowRight':
+    case 'ArrowDown':
+    case 'Home':
+    case 'End':
+    case 'PageUp':
+    case 'PageDown':
+      hideSelectionMenu();
+      break;
   }
 }, true);
 
