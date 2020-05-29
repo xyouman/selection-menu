@@ -4,138 +4,12 @@ chrome.storage.local.get({
   styleFontFamily: 'sans-serif',
   findButtonText: 'Find in Google',
   copyButtonText: 'Copy'
-}, (options) => void createSelectionMenu(options));
-
-function createSelectionMenu(options) {
+}, (options) => {
   let selectedString = '';
-  
-  const selectionMenu = document.createElement('div');
+  const selectionMenu = createSelectionMenu(options);
   selectionMenu.hidden = true;
   document.body.appendChild(selectionMenu);
-  
-  const shadowRoot = selectionMenu.attachShadow({
-    mode: 'closed'
-  });
-  const style = document.createElement('style');
-  style.textContent = `
-    :host {
-      --arrow-down: white transparent transparent transparent;
-      --arrow-up: transparent transparent white transparent;
-      --arrow: var(--arrow-down);
-      background: transparent none repeat scroll 0% 0% !important;
-      border-style: none !important;
-      box-shadow: none !important;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
-      font-family: sans-serif !important;
-      font-size: medium !important;
-      font-stretch: normal !important;
-      font-style: normal !important;
-      font-variant: normal !important;
-      font-weight: normal !important;
-      height: auto !important;
-      letter-spacing: normal !important;
-      line-height: normal !important;
-      margin: 0 !important;
-      overflow: visible !important;
-      padding: 0 !important;
-      position: fixed !important;
-      text-indent: 0 !important;
-      text-transform: none !important;
-      width: auto !important;
-      word-spacing: normal !important;
-      z-index: 99999 !important;
-    }
-    :host:after {
-      border-color: var(--arrow);
-      border-style: solid;
-      border-width: 8px;
-      content: "";
-      height: 0;
-      left: var(--arrow-left, 50%);
-      margin-left: -8px;
-      pointer-events: none;
-      position: absolute;
-      width: 0;
-      top: var(--arrow-top, 100%);
-    }
-    ul {
-      background-color: white;
-      display: inline-block;
-      list-style: none;
-      margin: 0;
-      padding: 3px 0;
-      white-space: nowrap;
-    }
-    li {
-      border-right: 1px solid #ddd;
-      display: inline-block;
-      padding: 0 3px;
-    }
-    li:last-child {
-      border-right: 0;
-    }
-    span {
-      color: #222;
-      cursor: default;
-      display: inline-block;
-      font-family: var(--menu-font-family, sans-serif);
-      font-size: 13px;
-      line-height: 18px;
-      padding: 3px 7px;
-    }
-    span:hover {
-      background-color: #8bb8dc;
-    }`;
-  shadowRoot.appendChild(style);
-  selectionMenu.style.setProperty('--menu-font-family', options.styleFontFamily);
-  let menuElement;
-  
-  function addMenuItem(text) {
-    if (!menuElement) {
-      menuElement = document.createElement('ul');
-    }
-    const menuItemElement = document.createElement('li');
-    menuElement.appendChild(menuItemElement);
-    const textElement = document.createElement('span');
-    textElement.textContent = text;
-    menuItemElement.appendChild(textElement);
-    return textElement;
-  }
-  
-  const findButtonElement = addMenuItem(options.findButtonText);
-  const copyButtonElement = addMenuItem(options.copyButtonText);
-  
-  shadowRoot.appendChild(menuElement);
-  
-  shadowRoot.addEventListener('mousedown', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  });
-  
-  shadowRoot.addEventListener('mouseup', (event) => {
-    switch (event.target) {
-      case findButtonElement:
-        chrome.runtime.sendMessage({
-          action: 'find',
-          selectedString: selectedString
-        });
-        selectionMenu.hidden = true;
-        break;
-      case copyButtonElement:
-        chrome.runtime.sendMessage({
-          action: 'copy',
-          selectedString: selectedString
-        });
-        selectionMenu.hidden = true;
-        break;
-    }
-    event.stopPropagation();
-  });
-  
-  shadowRoot.addEventListener('click', (event) => {
-    event.stopPropagation();
-  });
-  
+
   window.addEventListener('message', (event) => {
     if (event.source !== window.top) return;
     switch (event.data.action) {
@@ -194,4 +68,131 @@ function createSelectionMenu(options) {
         break;
     }
   });
-}
+  
+  function createSelectionMenu(options) {
+    const selectionMenu = document.createElement('div');
+    const shadowRoot = selectionMenu.attachShadow({
+      mode: 'closed'
+    });
+    const style = document.createElement('style');
+    style.textContent = `
+      :host {
+        --arrow-down: white transparent transparent transparent;
+        --arrow-up: transparent transparent white transparent;
+        --arrow: var(--arrow-down);
+        background: transparent none repeat scroll 0% 0% !important;
+        border-style: none !important;
+        box-shadow: none !important;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+        font-family: sans-serif !important;
+        font-size: medium !important;
+        font-stretch: normal !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        font-weight: normal !important;
+        height: auto !important;
+        letter-spacing: normal !important;
+        line-height: normal !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        position: fixed !important;
+        text-indent: 0 !important;
+        text-transform: none !important;
+        width: auto !important;
+        word-spacing: normal !important;
+        z-index: 99999 !important;
+      }
+      :host:after {
+        border-color: var(--arrow);
+        border-style: solid;
+        border-width: 8px;
+        content: "";
+        height: 0;
+        left: var(--arrow-left, 50%);
+        margin-left: -8px;
+        pointer-events: none;
+        position: absolute;
+        width: 0;
+        top: var(--arrow-top, 100%);
+      }
+      ul {
+        background-color: white;
+        display: inline-block;
+        list-style: none;
+        margin: 0;
+        padding: 3px 0;
+        white-space: nowrap;
+      }
+      li {
+        border-right: 1px solid #ddd;
+        display: inline-block;
+        padding: 0 3px;
+      }
+      li:last-child {
+        border-right: 0;
+      }
+      span {
+        color: #222;
+        cursor: default;
+        display: inline-block;
+        font-family: var(--menu-font-family, sans-serif);
+        font-size: 13px;
+        line-height: 18px;
+        padding: 3px 7px;
+      }
+      span:hover {
+        background-color: #8bb8dc;
+      }`;
+    shadowRoot.appendChild(style);
+    selectionMenu.style.setProperty('--menu-font-family', options.styleFontFamily);
+    let menuElement;
+    const findButtonElement = addMenuItem(options.findButtonText);
+    const copyButtonElement = addMenuItem(options.copyButtonText);
+    
+    shadowRoot.appendChild(menuElement);
+    
+    shadowRoot.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    
+    shadowRoot.addEventListener('mouseup', (event) => {
+      switch (event.target) {
+        case findButtonElement:
+          chrome.runtime.sendMessage({
+            action: 'find',
+            selectedString: selectedString
+          });
+          selectionMenu.hidden = true;
+          break;
+        case copyButtonElement:
+          chrome.runtime.sendMessage({
+            action: 'copy',
+            selectedString: selectedString
+          });
+          selectionMenu.hidden = true;
+          break;
+      }
+      event.stopPropagation();
+    });
+    
+    shadowRoot.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+    
+    function addMenuItem(text) {
+      if (!menuElement) {
+        menuElement = document.createElement('ul');
+      }
+      const menuItemElement = document.createElement('li');
+      menuElement.appendChild(menuItemElement);
+      const textElement = document.createElement('span');
+      textElement.textContent = text;
+      menuItemElement.appendChild(textElement);
+      return textElement;
+    }
+    
+    return selectionMenu;
+  }
+});
