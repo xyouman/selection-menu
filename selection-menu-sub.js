@@ -57,19 +57,22 @@ window.addEventListener('message', (event) => {
   if (event.source === window.top) return;
   switch (event.data.action) {
     case 'show':
-      let subFrame;
       const subFrames = document.getElementsByTagName('iframe');
-      for (let i = 0; i < frames.length; i++) {
+      
+      let subFrame;
+      for (let i = 0; i < subFrames.length; i++) {
         if (subFrames[i].contentWindow === event.source) {
           subFrame = subFrames[i];
           break;
         }
       }
       if (subFrame === undefined) throw new Error("can't find sub iframe");
+      
       const subFrameOffset = subFrame.getBoundingClientRect();
       const subFrameStyle = getComputedStyle(subFrame);
       const subFramePaddingLeft = parseInt(subFrameStyle.paddingLeft);
       const subFramePaddingTop = parseInt(subFrameStyle.paddingTop);
+      
       window.parent.postMessage({
         action: 'show',
         selectedString: event.data.selectedString,
@@ -192,11 +195,7 @@ function showSelectionMenu(element) { // event.target
       break;
   }
   
-  if (selectionStart.top === selectionEnd.top) {
-    onOneLine = true;
-  } else {
-    onOneLine = false;
-  }
+  onOneLine = (selectionStart.top === selectionEnd.top) ? true : false;
   
   window.parent.postMessage({
     action: 'show',
