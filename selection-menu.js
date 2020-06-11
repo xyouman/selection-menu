@@ -81,9 +81,10 @@ chrome.storage.local.get({
         --arrow-up: transparent transparent white transparent;
         --arrow: var(--arrow-down);
         background: transparent none repeat scroll 0% 0% !important;
+        border-radius: 0 !important;
         border-style: none !important;
         box-shadow: none !important;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)) !important;
         font-family: sans-serif !important;
         font-size: medium !important;
         font-stretch: normal !important;
@@ -104,17 +105,17 @@ chrome.storage.local.get({
         z-index: 99999 !important;
       }
       :host:after {
-        border-color: var(--arrow);
-        border-style: solid;
-        border-width: 8px;
-        content: "";
-        height: 0;
-        left: var(--arrow-left, 50%);
-        margin-left: -8px;
-        pointer-events: none;
-        position: absolute;
-        width: 0;
-        top: var(--arrow-top, 100%);
+        border-color: var(--arrow) !important;
+        border-style: solid !important;
+        border-width: 8px !important;
+        content: "" !important;
+        height: 0 !important;
+        left: var(--arrow-left, 50%) !important;
+        margin-left: -8px !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        width: 0 !important;
+        top: var(--arrow-top, 100%) !important;
       }
       ul {
         background-color: white;
