@@ -1,5 +1,9 @@
 'use strict';
 
+document.addEventListener('DOMContentLoaded', restoreOptions);
+document.querySelector("form").addEventListener('submit', saveOptions);
+document.querySelector("select").addEventListener('change', changeSearchEngine);
+
 function saveOptions(event) {
   chrome.storage.local.set({
     searchEngineName: document.querySelector("select").value,
@@ -48,7 +52,3 @@ function changeSearchEngine() {
   }
   document.querySelector("#find-button-text").value = 'Find in ' + this.options[this.selectedIndex].text;
 }
-
-document.addEventListener('DOMContentLoaded', restoreOptions);
-document.querySelector("form").addEventListener('submit', saveOptions);
-document.querySelector("select").addEventListener('change', changeSearchEngine);
