@@ -2,7 +2,7 @@
 
 chrome.storage.local.get({
   styleFontFamily: 'sans-serif',
-  findButtonText: 'Find in Google',
+  searchButtonText: 'Search in Google',
   copyButtonText: 'Copy'
 }, (options) => {
   let selectedString = '';
@@ -148,7 +148,7 @@ chrome.storage.local.get({
     shadowRoot.appendChild(style);
     selectionMenu.style.setProperty('--menu-font-family', options.styleFontFamily);
     let menuElement;
-    const findButtonElement = addMenuItem(options.findButtonText);
+    const searchButtonElement = addMenuItem(options.searchButtonText);
     const copyButtonElement = addMenuItem(options.copyButtonText);
     
     shadowRoot.appendChild(menuElement);
@@ -160,9 +160,9 @@ chrome.storage.local.get({
     
     shadowRoot.addEventListener('mouseup', (event) => {
       switch (event.target) {
-        case findButtonElement:
+        case searchButtonElement:
           chrome.runtime.sendMessage({
-            action: 'find',
+            action: 'search',
             selectedString: selectedString
           });
           selectionMenu.hidden = true;

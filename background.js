@@ -2,7 +2,7 @@
 
 chrome.runtime.onMessage.addListener((message) => {
   switch (message.action) {
-    case 'find':
+    case 'search':
       chrome.storage.local.get({
         searchEngineURL: 'https://www.google.com/search?q='
       }, (options) => {

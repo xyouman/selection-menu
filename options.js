@@ -9,7 +9,7 @@ function saveOptions(event) {
     searchEngineName: document.querySelector("select").value,
     searchEngineURL: document.querySelector("#search-engine-url").value,
     styleFontFamily: document.querySelector("#style-font-family").value,
-    findButtonText: document.querySelector("#find-button-text").value,
+    searchButtonText: document.querySelector("#search-button-text").value,
     copyButtonText: document.querySelector("#copy-button-text").value
   });
   event.preventDefault();
@@ -20,7 +20,7 @@ function restoreOptions() {
     searchEngineName: 'google',
     searchEngineURL: 'https://www.google.com/search?q=',
     styleFontFamily: '',
-    findButtonText: 'Find in Google',
+    searchButtonText: 'Search in Google',
     copyButtonText: 'Copy'
   }, (options) => {
     document.querySelector("select").value = options.searchEngineName;
@@ -29,7 +29,7 @@ function restoreOptions() {
     }
     document.querySelector("#search-engine-url").value = options.searchEngineURL;
     document.querySelector("#style-font-family").value = options.styleFontFamily;
-    document.querySelector("#find-button-text").value = options.findButtonText;
+    document.querySelector("#search-button-text").value = options.searchButtonText;
     document.querySelector("#copy-button-text").value = options.copyButtonText;
   });
 }
@@ -50,5 +50,5 @@ function changeSearchEngine() {
     document.querySelector("#search-engine-url").disabled = false;
     document.querySelector("#search-engine-url").value = '';
   }
-  document.querySelector("#find-button-text").value = 'Find in ' + this.options[this.selectedIndex].text;
+  document.querySelector("#search-button-text").value = 'Search in ' + this.options[this.selectedIndex].text;
 }
